@@ -1,10 +1,14 @@
-# 최상위 main.tf
+# 1. Network 모듈 호출
+# VPC, Subnet, Security Group 등을 생성합니다.
+module "network" {
+  source = "./modules/network"
+}
 
+# 2. Aurora DB 모듈 호출
 module "aurora_db" {
   source = "./modules/auroradb"
 
-  # terraform.tfvars에서 읽어온 변수들을 모듈로 전달
-  vpc_id      = var.vpc_id
+  vpc_id      = module.network.team_vpc_id
   db_username = var.db_username
   db_password = var.db_password
 }
