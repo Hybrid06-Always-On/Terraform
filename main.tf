@@ -8,7 +8,12 @@ module "network" {
 module "aurora_db" {
   source = "./modules/auroradb"
 
-  vpc_id      = module.network.team_vpc_id
-  db_username = var.db_username
-  db_password = var.db_password
+  # 네트워크 모듈과 연계
+  vpc_id             = module.network.team_vpc_id
+  private_subnet_ids = module.network.team_prisn_ids
+
+  # 설정값
+  instance_count = var.instance_count
+  db_username    = var.db_username
+  db_password    = var.db_password
 }

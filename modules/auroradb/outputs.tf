@@ -13,7 +13,3 @@ output "db_sg_id" {
   value       = aws_security_group.aurora_sg.id
 }
 
-output "rds_interface_endpoint_id" {
-  description = "RDS Interface Endpoint ID"
-  value       = aws_vpc_endpoint.rds_endpoint.id
-}
