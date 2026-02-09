@@ -18,14 +18,14 @@
 
 # 1. 기존 VPC 정보 가져오기
 data "aws_vpc" "selected" {
-  id = module.network.var.team_vpc_id
+  id = var.team_vpc_id
 }
 
 # 2. 보안 그룹 설정
 resource "aws_security_group" "aurora_sg" {
   name        = "team-aurora-sg"
   description = "Security group for Aurora and Interface Endpoint"
-  vpc_id      = module.network.var.team_vpc_id
+  vpc_id      = var.team_vpc_id
 
   ingress {
     from_port   = 3306
@@ -56,7 +56,7 @@ resource "aws_security_group" "aurora_sg" {
 # 3. 서브넷 그룹
 resource "aws_db_subnet_group" "aurora_sng" {
   name       = "team-aurora-sng"
-  subnet_ids = module.network.var.team_subnet_ids
+  subnet_ids = var.team_prisn_ids
 }
 
 # 4. Aurora MySQL 클러스터
