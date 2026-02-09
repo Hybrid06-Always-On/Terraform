@@ -1,4 +1,4 @@
-# 1. VPC 생성 - 10.5.0.0/16
+# 1. VPC 생성 - 20.0.0.0/16
 resource "aws_vpc" "team_VPC" {
   cidr_block           = var.team_vpc_cidr
   enable_dns_hostnames = true # DNS 호스트이름 활성화
@@ -19,9 +19,9 @@ resource "aws_internet_gateway" "team_IGW" {
 
 # 3. Public Subnet 3개 생성
 # * cidr block 정보
-# - 10.5.5.0/24
-# - 10.5.6.0/24
-# - 10.5.7.0/24
+# - 20.0.1.0/24
+# - 20.0.2.0/24
+# - 20.0.3.0/24
 
 resource "aws_subnet" "team_PubSN" {
   count = length(var.team_public_subnets)
@@ -93,9 +93,9 @@ resource "aws_nat_gateway" "team_NAT-GW" {
 
 # 6. Private Subnet 3개 생성
 # * cidr block 정보
-# - 10.5.8.0/24
-# - 10.6.9.0/24
-# - 10.7.1-.0/24
+# - 20.0.4.0/24
+# - 20.0.5.0/24
+# - 20.0.6.0/24
 
 resource "aws_subnet" "team_PriSN" {
   count = length(var.team_private_subnets) # Private Subnet 개수만큼 생성
