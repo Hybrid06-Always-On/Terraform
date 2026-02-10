@@ -1,5 +1,4 @@
 # 1. Network 모듈 호출
-# VPC, Subnet, Security Group 등을 생성합니다.
 module "network" {
   source = "./modules/network"
 }
@@ -16,4 +15,13 @@ module "aurora_db" {
   instance_count = var.instance_count
   db_username    = var.db_username
   db_password    = var.db_password
+}
+
+# 3. EKS Cluster 모듈 호출
+module "eks_cluster" {
+  source = "./modules/eks_cluster"
+
+  team_vpc_id       = module.network.team_vpc_id
+  team_cluster_name = module.network.team_cluster_name
+  team_prisn_ids    = module.network.team_prisn_ids
 }
