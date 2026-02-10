@@ -14,6 +14,10 @@ output "team_cluster_name" {
   value = module.network.team_cluster_name
 }
 
+output "team_prisn_rtb_id" {
+  value = module.network.team_prisn_rtb_id
+}
+
 output "aurora_cluster_endpoint" {
   description = "Aurora Cluster Writer 엔드포인트"
   value       = module.aurora_db.cluster_endpoint

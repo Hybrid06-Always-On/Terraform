@@ -10,6 +10,10 @@ output "team_prisn_ids" {
   value = aws_subnet.team_PriSN[*].id
 }
 
+output "team_prisn_rtb_id" {
+  value = aws_route_table.team_PriSN-RT[*].id
+}
+
 output "team_cluster_name" {
   value = var.cluster_name
 }
