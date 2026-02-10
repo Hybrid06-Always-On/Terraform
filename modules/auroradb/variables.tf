@@ -13,5 +13,15 @@ variable "db_password" {
 variable "instance_count" {
   type        = number
   description = "생성할 Aurora 인스턴스 개수 (1이면 Writer만, 2이상이면 Reader 추가)"
-  default     = 1
+  default     = 2
+}
+
+variable "team_vpc_id" {
+  description = "The VPC ID from the network module"
+  type        = string
+}
+
+variable "team_prisn_ids" {
+  description = "The private subnet IDs from the network module"
+  type        = list(string)
 }
