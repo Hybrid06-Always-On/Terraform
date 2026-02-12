@@ -8,8 +8,8 @@ resource "aws_cloudfront_distribution" "this" {
   ]
 
   origin {
-    domain_name = "example.com"  # 🔥 임시 Origin (ALB 나오면 교체)
-    origin_id   = "temp-origin"
+    domain_name = "onprem.alwaysonteam.store"  # 🔥 온프레미스 도메인 권장
+    origin_id   = "onprem-origin"
 
     custom_origin_config {
       http_port              = 80
@@ -22,7 +22,7 @@ resource "aws_cloudfront_distribution" "this" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "temp-origin"
+    target_origin_id = "onprem-origin"
 
     viewer_protocol_policy = "redirect-to-https"
 
@@ -45,6 +45,4 @@ resource "aws_cloudfront_distribution" "this" {
       restriction_type = "none"
     }
   }
-
 }
-

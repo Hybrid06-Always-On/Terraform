@@ -14,4 +14,3 @@ resource "aws_route53_record" "cert_validation" {
   records = [each.value.record]
   ttl     = 60
 }
-
