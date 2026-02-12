@@ -25,3 +25,11 @@ module "eks_cluster" {
   team_cluster_name = module.network.team_cluster_name
   team_prisn_ids    = module.network.team_prisn_ids
 }
+
+#  4. MinIO S3  모듈 호출
+module "minio_s3_dr" {
+  source = "./modules/minio_s3_dr"
+
+  team_vpc_id       = module.network.vpc_id
+  team_prisn_rtb_id = module.network.team_prisn_rtb_id
+}
