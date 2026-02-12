@@ -1,21 +1,24 @@
-################################
+#################################
 # Required infra
-################################
+#################################
 
 variable "team_vpc_id" {
-  type = string
+  description = "VPC ID"
+  type        = string
 }
 
 variable "team_prisn_rtb_id" {
-  type = list(string)
+  description = "Private route table IDs"
+  type        = list(string)
 }
 
-################################
+#################################
 # DR config
-################################
+#################################
 
 variable "dr_buckets" {
-  type = list(string)
+  description = "MinIO DR 대상 S3 버킷 목록"
+  type        = list(string)
 
   default = [
     "alwayson-video-hls",
@@ -24,7 +27,8 @@ variable "dr_buckets" {
 }
 
 variable "tags" {
-  type = map(string)
+  description = "공통 태그"
+  type        = map(string)
 
   default = {
     Project = "AlwaysOn-DR"
@@ -32,6 +36,7 @@ variable "tags" {
 }
 
 variable "lifecycle_days" {
-  type    = number
-  default = 30
+  description = "Lifecycle 전환 기준 일"
+  type        = number
+  default     = 30
 }
