@@ -12,7 +12,7 @@ variable "team_prisn_rtb_id" {
   type        = list(string)
 }
 
-#################################
+################################
 # DR config
 #################################
 
@@ -38,5 +38,5 @@ variable "tags" {
 variable "lifecycle_days" {
   description = "Lifecycle 전환 기준 일"
   type        = number
-  default     = 30
+  default     = 90
 }

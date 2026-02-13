@@ -112,7 +112,11 @@ resource "aws_s3_bucket_ownership_controls" "minio_dr" {
 # → 오래된 데이터 비용 절감용 스토리지 전환
 #############################################
 resource "aws_s3_bucket_lifecycle_configuration" "minio_dr" {
-  for_each = aws_s3_bucket.minio_dr
+
+  for_each = {
+    for k, v in aws_s3_bucket.minio_dr :
+    k => v if k != "alwayson-video-thumb"
+  }
 
   bucket = each.value.id
 
@@ -120,15 +124,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "minio_dr" {
     id     = "dr-transition"
     status = "Enabled"
 
-    # 일정 기간 후 IA 스토리지로 전환
+    # 최근 데이터는 STANDARD 유지
     transition {
       days          = var.lifecycle_days
       storage_class = "STANDARD_IA"
     }
 
-    # 이전 버전 객체도 IA로 전환
+    # 이전 버전도 동일 정책
     noncurrent_version_transition {
-      noncurrent_days = 30
+      noncurrent_days = var.lifecycle_days
       storage_class   = "STANDARD_IA"
     }
   }
