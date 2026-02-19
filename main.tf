@@ -29,7 +29,4 @@ module "eks_cluster" {
 # 4. MinIO S3  모듈 호출
 module "minio_s3_dr" {
   source = "./modules/minio_s3_dr"
-
-  team_vpc_id       = module.network.team_vpc_id
-  team_prisn_rtb_id = module.network.team_prisn_rtb_id
 }

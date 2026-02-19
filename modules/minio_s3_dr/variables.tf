@@ -1,17 +1,3 @@
-#################################
-# Required infra
-#################################
-
-variable "team_vpc_id" {
-  description = "VPC ID"
-  type        = string
-}
-
-variable "team_prisn_rtb_id" {
-  description = "Private route table IDs"
-  type        = list(string)
-}
-
 ################################
 # DR config
 #################################
