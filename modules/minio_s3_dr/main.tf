@@ -85,6 +85,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "minio_dr" {
     id     = "dr-transition"
     status = "Enabled"
 
+    filter {} 
+
     # 최근 데이터는 STANDARD 유지
     transition {
       days          = var.lifecycle_days
