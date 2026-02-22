@@ -21,18 +21,16 @@ resource "aws_cloudfront_distribution" "this" {
   depends_on = [aws_acm_certificate_validation.this]
   enabled    = true
 
-  default_root_object = ""
-
   aliases = [
     "alwaysonteam.store",
     "www.alwaysonteam.store"
   ]
 
   ################################################
-  # 🔵 Origin 설정
+  # 🔵 Origin 설정 (ALB 80번 포트 전용 설정)
   ################################################
   
-  # 1. API & Default용 ALB (80번 포트 고정 설정)
+  # 1. API & Default용 ALB
   origin {
     domain_name = "k8s-app-backendi-20f5a272f2-919536847.ap-northeast-2.elb.amazonaws.com"
     origin_id   = "alb-backend"
@@ -40,7 +38,7 @@ resource "aws_cloudfront_distribution" "this" {
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      # 조원분 요청: ALB는 80번으로만 접근하도록 설정
+      # 조원분 피드백 반영: ALB는 80번 포트(HTTP)로만 접근
       origin_protocol_policy = "http-only" 
       origin_ssl_protocols   = ["TLSv1.2"]
     }
@@ -62,16 +60,18 @@ resource "aws_cloudfront_distribution" "this" {
   # ⭐ Cache Behavior
   ################################################
 
-  # [순서 1] /api/* -> ALB (리디렉션 제거)
+  # [순서 1] /api/* -> ALB (조원분 요청 반영)
   ordered_cache_behavior {
     path_pattern     = "/api/*"
     target_origin_id = "alb-backend"
-    # 조원분 요청: 리디렉션 안 되도록 allow-all로 변경
+    
+    # 조원분 피드백: 리디렉션 제거
     viewer_protocol_policy = "allow-all" 
 
     allowed_methods  = ["GET","HEAD","OPTIONS","PUT","POST","PATCH","DELETE"]
     cached_methods   = ["GET","HEAD"]
 
+    # ⚠️ 만약 API 호출 시 서명(Signed URL)을 쓰지 않는다면 아래 라인을 지우세요!
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
 
     forwarded_values {
@@ -85,73 +85,24 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl     = 0
   }
 
-  # [순서 2] *.m3u8 -> S3 HLS (CORS 대응)
+  # [순서 2] *.m3u8, *.ts, *.jpg (S3용 - 이전과 동일하게 CORS 설정 유지)
   ordered_cache_behavior {
     path_pattern     = "*.m3u8"
     target_origin_id = "s3-hls"
     viewer_protocol_policy = "redirect-to-https"
-
     allowed_methods = ["GET","HEAD","OPTIONS"]
     cached_methods  = ["GET","HEAD"]
-
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
-
     forwarded_values {
       query_string = true
       headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       cookies { forward = "none" }
     }
-
-    default_ttl = 3600
-    max_ttl     = 86400
-  }
-
-  # [순서 3] *.ts -> S3 HLS (CORS 대응)
-  ordered_cache_behavior {
-    path_pattern     = "*.ts"
-    target_origin_id = "s3-hls"
-    viewer_protocol_policy = "redirect-to-https"
-
-    allowed_methods = ["GET","HEAD","OPTIONS"]
-    cached_methods  = ["GET","HEAD"]
-
-    trusted_key_groups = [aws_cloudfront_key_group.signed.id]
-
-    forwarded_values {
-      query_string = true
-      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
-      cookies { forward = "none" }
-    }
-
-    default_ttl = 3600
-    max_ttl     = 86400
-  }
-
-  # [순서 4] *.jpg -> S3 Thumb (CORS 대응)
-  ordered_cache_behavior {
-    path_pattern     = "*.jpg"
-    target_origin_id = "s3-thumb"
-    viewer_protocol_policy = "redirect-to-https"
-
-    allowed_methods = ["GET","HEAD","OPTIONS"]
-    cached_methods  = ["GET","HEAD"]
-
-    trusted_key_groups = [aws_cloudfront_key_group.signed.id]
-
-    forwarded_values {
-      query_string = true
-      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
-      cookies { forward = "none" }
-    }
-
-    default_ttl = 3600
-    max_ttl     = 86400
   }
 
   # [Default] * -> ALB (리디렉션 제거)
   default_cache_behavior {
     target_origin_id       = "alb-backend"
-    # 조원분 요청: 리디렉션 안 되도록 allow-all로 변경
     viewer_protocol_policy = "allow-all" 
 
     allowed_methods  = ["GET","HEAD","OPTIONS","PUT","POST","PATCH","DELETE"]
@@ -178,9 +129,5 @@ resource "aws_cloudfront_distribution" "this" {
     geo_restriction {
       restriction_type = "none"
     }
-  }
-
-  tags = {
-    Name = "AlwaysOn-CloudFront-Final"
   }
 }
