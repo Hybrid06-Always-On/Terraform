@@ -11,7 +11,6 @@ resource "aws_cloudfront_key_group" "signed" {
   provider = aws.use1
   name     = "alwayson-signed-group"
   items    = [aws_cloudfront_public_key.signed.id]
-  depends_on = [aws_cloudfront_public_key.signed]
 }
 
 ############################################
@@ -22,8 +21,7 @@ resource "aws_cloudfront_distribution" "this" {
   depends_on = [aws_acm_certificate_validation.this]
   enabled    = true
 
-  # API 서버 형태이므로 기본 루트 오브젝트는 비워둠
-  default_root_object = "" 
+  default_root_object = ""
 
   aliases = [
     "alwaysonteam.store",
@@ -33,115 +31,141 @@ resource "aws_cloudfront_distribution" "this" {
   ################################################
   # 🔵 Origin 설정
   ################################################
+  
+  # 1. API & Default용 ALB (80번 포트 고정 설정)
   origin {
-    domain_name = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com"
-    
-    # [수정 위치 1] 이름표(ID)를 ALB DNS 주소로 설정
-    origin_id   = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+    domain_name = "k8s-app-backendi-20f5a272f2-919536847.ap-northeast-2.elb.amazonaws.com"
+    origin_id   = "alb-backend"
 
     custom_origin_config {
       http_port              = 80
       https_port             = 443
-      origin_protocol_policy = "http-only"
+      # 조원분 요청: ALB는 80번으로만 접근하도록 설정
+      origin_protocol_policy = "http-only" 
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
-  ################################################
-  # ⭐ Default Cache Behavior (일반 접속)
-  ################################################
-  default_cache_behavior {
-    # [수정 위치 2] 위 origin_id와 일치시킴
-    target_origin_id       = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
-    viewer_protocol_policy = "redirect-to-https"
+  # 2. HLS 영상용 S3 버킷
+  origin {
+    domain_name = "alwayson-video-hls.s3.ap-northeast-2.amazonaws.com" 
+    origin_id   = "s3-hls"
+  }
 
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods   = ["GET", "HEAD"]
-
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
-
-    forwarded_values {
-      query_string = true
-      headers      = ["Host", "Origin", "Authorization", "Accept"]
-      cookies {
-        forward = "all"
-      }
-    }
+  # 3. 썸네일용 S3 버킷
+  origin {
+    domain_name = "alwayson-video-thumb.s3.ap-northeast-2.amazonaws.com"
+    origin_id   = "s3-thumb"
   }
 
   ################################################
-  # 🔐 보안 경로 1: /api/* (Signed URL 필수)
+  # ⭐ Cache Behavior
   ################################################
+
+  # [순서 1] /api/* -> ALB (리디렉션 제거)
   ordered_cache_behavior {
     path_pattern     = "/api/*"
-    # [수정 위치 3] 위 origin_id와 일치시킴
-    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
-    
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods   = ["GET", "HEAD"]
-    viewer_protocol_policy = "redirect-to-https"
+    target_origin_id = "alb-backend"
+    # 조원분 요청: 리디렉션 안 되도록 allow-all로 변경
+    viewer_protocol_policy = "allow-all" 
+
+    allowed_methods  = ["GET","HEAD","OPTIONS","PUT","POST","PATCH","DELETE"]
+    cached_methods   = ["GET","HEAD"]
 
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
 
     forwarded_values {
       query_string = true
-      headers      = ["Host", "Origin", "Authorization", "Accept"]
+      headers      = ["Host","Origin","Authorization","Accept"]
       cookies { forward = "all" }
     }
 
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
   }
 
-  ################################################
-  # 🔐 보안 경로 2: /video-hls/* (Signed URL 필수)
-  ################################################
+  # [순서 2] *.m3u8 -> S3 HLS (CORS 대응)
   ordered_cache_behavior {
-    path_pattern     = "/video-hls/*"
-    # [수정 위치 4] 위 origin_id와 일치시킴
-    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
-    
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
+    path_pattern     = "*.m3u8"
+    target_origin_id = "s3-hls"
     viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET","HEAD","OPTIONS"]
+    cached_methods  = ["GET","HEAD"]
 
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
 
     forwarded_values {
       query_string = true
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       cookies { forward = "none" }
     }
 
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    default_ttl = 3600
+    max_ttl     = 86400
   }
 
-  ################################################
-  # 🔐 보안 경로 3: /video-thumb/* (Signed URL 필수)
-  ################################################
+  # [순서 3] *.ts -> S3 HLS (CORS 대응)
   ordered_cache_behavior {
-    path_pattern     = "/video-thumb/*"
-    # [수정 위치 5] 위 origin_id와 일치시킴
-    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
-    
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
+    path_pattern     = "*.ts"
+    target_origin_id = "s3-hls"
     viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET","HEAD","OPTIONS"]
+    cached_methods  = ["GET","HEAD"]
 
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
 
     forwarded_values {
       query_string = true
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       cookies { forward = "none" }
     }
 
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    default_ttl = 3600
+    max_ttl     = 86400
+  }
+
+  # [순서 4] *.jpg -> S3 Thumb (CORS 대응)
+  ordered_cache_behavior {
+    path_pattern     = "*.jpg"
+    target_origin_id = "s3-thumb"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["GET","HEAD","OPTIONS"]
+    cached_methods  = ["GET","HEAD"]
+
+    trusted_key_groups = [aws_cloudfront_key_group.signed.id]
+
+    forwarded_values {
+      query_string = true
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+      cookies { forward = "none" }
+    }
+
+    default_ttl = 3600
+    max_ttl     = 86400
+  }
+
+  # [Default] * -> ALB (리디렉션 제거)
+  default_cache_behavior {
+    target_origin_id       = "alb-backend"
+    # 조원분 요청: 리디렉션 안 되도록 allow-all로 변경
+    viewer_protocol_policy = "allow-all" 
+
+    allowed_methods  = ["GET","HEAD","OPTIONS","PUT","POST","PATCH","DELETE"]
+    cached_methods   = ["GET","HEAD"]
+
+    forwarded_values {
+      query_string = true
+      headers      = ["Host","Origin","Authorization","Accept"]
+      cookies { forward = "all" }
+    }
+
+    min_ttl     = 0
+    default_ttl = 0
+    max_ttl     = 0
   }
 
   viewer_certificate {
