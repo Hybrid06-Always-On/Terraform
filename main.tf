@@ -25,3 +25,8 @@ module "eks_cluster" {
   team_cluster_name = module.network.team_cluster_name
   team_prisn_ids    = module.network.team_prisn_ids
 }
+
+module "monitoring" {
+  source     = "./modules/monitoring"
+  depends_on = [module.eks_cluster]
+}
