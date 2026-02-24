@@ -1,4 +1,3 @@
-
 # data "terraform_remote_state" "network_module" {
 #   backend = "s3"
 #   config = {
@@ -11,8 +10,8 @@
 
 # # 로컬 변수에 할당
 # locals {
-#   team_vpc_id     = data.terraform_remote_state.network_module.outputs.team_vpc_id
-#   team_subnet_ids = data.terraform_remote_state.network_module.outputs.team_prisn_ids
+#   team_vpc_id    = data.terraform_remote_state.network_module.outputs.team_vpc_id
+#   team_prisn_ids = data.terraform_remote_state.network_module.outputs.team_prisn_ids
 # }
 
 

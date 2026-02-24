@@ -12,4 +12,3 @@ output "db_sg_id" {
   description = "Aurora 보안 그룹 ID"
   value       = aws_security_group.aurora_sg.id
 }
-
