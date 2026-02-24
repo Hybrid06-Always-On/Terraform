@@ -100,3 +100,54 @@ resource "aws_s3_bucket_lifecycle_configuration" "minio_dr" {
     }
   }
 }
+
+#############################################
+# S3 Bucket Policy (CloudFront 전용 접근 허용)
+#############################################
+resource "aws_s3_bucket_policy" "minio_dr" {
+  for_each = aws_s3_bucket.minio_dr
+
+  bucket = each.value.id
+
+  policy = jsonencode({
+    Version = "2008-10-17"
+    Id      = "PolicyForCloudFrontPrivateContent"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipal"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${each.value.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::260028436792:distribution/E144GFIYUBXADB"
+          }
+        }
+      }
+    ]
+  })
+}
+
+#############################################
+# S3 CORS 설정
+# → CloudFront / Web Frontend 접근 허용
+#############################################
+resource "aws_s3_bucket_cors_configuration" "minio_dr" {
+  for_each = aws_s3_bucket.minio_dr
+
+  bucket = each.value.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = [
+      "https://alwaysonteam.store",
+      "https://www.alwaysonteam.store"
+    ]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
