@@ -38,3 +38,10 @@ module "monitoring" {
   depends_on = [module.eks_cluster]
 }
 
+# efs 모듈 호출
+module "efs" {
+  source = "./modules/efs"
+
+  team_vpc_id        = module.network.team_vpc_id
+  team_prisn_ids    = module.network.team_prisn_ids
+}

@@ -53,3 +53,13 @@ output "minio_dr_buckets" {
   value       = module.minio_s3_dr.minio_dr_buckets
 }
 
+output "efs_id" {
+  description = "생성된 EFS 파일 시스템의 ID"
+  value       = module.efs.efs_id
+}
+
+output "efs_access_point_id" {
+  description = "생성된 EFS 액세스 포인트의 ID"
+  value       = module.efs.efs_access_point_id
+}
+
