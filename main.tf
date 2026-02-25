@@ -26,7 +26,15 @@ module "eks_cluster" {
   team_prisn_ids    = module.network.team_prisn_ids
 }
 
+
+# 4. MinIO S3  모듈 호출
+module "minio_s3_dr" {
+  source = "./modules/minio_s3_dr"
+
+}
+
 module "monitoring" {
   source     = "./modules/monitoring"
   depends_on = [module.eks_cluster]
 }
+

@@ -47,3 +47,9 @@ output "update_kubeconfig_command" {
   description = "kubeconfig 업데이트를 위한 AWS CLI 명령어"
   value       = "aws eks update-kubeconfig --region ap-northeast-2 --name ${module.eks_cluster.cluster_name} --profile process"
 }
+
+output "minio_dr_buckets" {
+  description = "생성된 DR S3 버킷 목록"
+  value       = module.minio_s3_dr.minio_dr_buckets
+}
+
