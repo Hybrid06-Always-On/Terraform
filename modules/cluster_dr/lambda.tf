@@ -67,12 +67,3 @@ resource "aws_lambda_function" "dr_scaler" {
     aws_iam_role_policy.lambda_secrets_policy,
   ]
 }
-
-# CloudWatch Alarms가 Lambda를 직접 호출할 수 있도록 허용
-resource "aws_lambda_permission" "allow_sns" {
-  statement_id  = "AllowExecutionFromSNS"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.dr_scaler.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = aws_sns_topic.dr_notification.arn
-}
