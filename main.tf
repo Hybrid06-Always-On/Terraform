@@ -26,13 +26,19 @@ module "eks_cluster" {
   team_prisn_ids    = module.network.team_prisn_ids
 }
 
-# 4. Monitoring 모듈 호출
+# 4. MinIO S3  모듈 호출
+module "minio_s3_dr" {
+  source = "./modules/minio_s3_dr"
+
+}
+
+# 5. Monitoring 모듈 호출
 module "monitoring" {
   source     = "./modules/monitoring"
   depends_on = [module.eks_cluster]
 }
 
-# 5. Cluster DR 모듈 호출
+# 6. Cluster DR 모듈 호출
 # 온프레미스 장애 시 Route53 HealthCheck → SNS → CloudWatch Alarm → Lambda → EKS scale-up을 수행
 module "cluster_dr" {
   source = "./modules/cluster_dr"
