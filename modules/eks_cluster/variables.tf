@@ -17,5 +17,5 @@ variable "team_prisn_ids" {
 variable "team_eks_admin_users" {
   description = "EKS 클러스터에 대한 관리자 권한을 가진 IAM 사용자 이름 목록"
   type        = set(string)
-  default     = ["arjleun", "ishwa"]
+  default     = ["arjleun", "ishwa", "dp8dp8123"]
 }
