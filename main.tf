@@ -38,3 +38,10 @@ module "monitoring" {
   depends_on = [module.eks_cluster]
 }
 
+module "datasync_agent" {
+  source = "./modules/datasync_agent"
+
+  team_vpc_id    = module.network.team_vpc_id
+  team_pubsn_ids = module.network.team_pubsn_ids
+  team_prisn_ids = module.network.team_prisn_ids
+}
