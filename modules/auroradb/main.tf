@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+
+=======
+>>>>>>> develop
 # data "terraform_remote_state" "network_module" {
 #   backend = "s3"
 #   config = {
@@ -10,8 +14,13 @@
 
 # # 로컬 변수에 할당
 # locals {
+<<<<<<< HEAD
+#   team_vpc_id     = data.terraform_remote_state.network_module.outputs.team_vpc_id
+#   team_subnet_ids = data.terraform_remote_state.network_module.outputs.team_prisn_ids
+=======
 #   team_vpc_id    = data.terraform_remote_state.network_module.outputs.team_vpc_id
 #   team_prisn_ids = data.terraform_remote_state.network_module.outputs.team_prisn_ids
+>>>>>>> develop
 # }
 
 
@@ -38,7 +47,11 @@ resource "aws_security_group" "aurora_sg" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
+<<<<<<< HEAD
+    cidr_blocks = ["10.5.4.0/24"]
+=======
     cidr_blocks = ["10.5.0.0/16"]
+>>>>>>> develop
     description = "Allow Replication traffic from On-premise"
   }
 

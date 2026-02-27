@@ -57,7 +57,7 @@ output "datasync_agent_instance_id" {
 }
 
 output "datasync_agent_private_ip" {
-  value = module.datasync_agent.private_ip 
+  value = module.datasync_agent.private_ip
 }
 
 output "datasync_agent_sg_id" {
@@ -72,4 +72,3 @@ output "efs_access_point_id" {
   description = "생성된 EFS 액세스 포인트의 ID"
   value       = module.efs.efs_access_point_id
 }
-

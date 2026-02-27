@@ -42,6 +42,8 @@ provider "registry.terraform.io/hashicorp/aws" {
     "zh:fe6205b5ca2ff36e68395cb8d3ae10a3728f405cdbcd46b206a515e1ebcf17a1",
   ]
 }
+<<<<<<< HEAD
+=======
 
 provider "registry.terraform.io/hashicorp/cloudinit" {
   version     = "2.3.7"
@@ -122,3 +124,4 @@ provider "registry.terraform.io/hashicorp/tls" {
     "zh:f569b65999264a9416862bca5cd2a6177d94ccb0424f3a4ef424428912b9cb3c",
   ]
 }
+>>>>>>> develop
