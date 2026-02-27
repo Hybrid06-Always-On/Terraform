@@ -14,6 +14,7 @@ output "team_cluster_name" {
   value = module.network.team_cluster_name
 }
 
+<<<<<<< HEAD
 # output "aurora_cluster_endpoint" {
 #   description = "Aurora Cluster Writer 엔드포인트"
 #   value       = module.aurora_db.cluster_endpoint
@@ -28,3 +29,42 @@ output "team_cluster_name" {
 #   description = "Aurora 보안 그룹 ID"
 #   value       = module.aurora_db.db_sg_id
 # }
+=======
+output "team_cluster_arn" {
+  value = module.eks_cluster.cluster_arn
+}
+
+output "team_cluster_endpoint" {
+  value = module.eks_cluster.cluster_endpoint
+}
+
+output "team_prisn_rtb_id" {
+  value = module.network.team_prisn_rtb_id
+}
+
+output "aurora_cluster_endpoint" {
+  description = "Aurora Cluster Writer 엔드포인트"
+  value       = module.aurora_db.cluster_endpoint
+}
+
+output "aurora_cluster_reader_endpoint" {
+  description = "Aurora Cluster Reader 엔드포인트"
+  value       = module.aurora_db.cluster_reader_endpoint
+}
+
+output "aurora_db_sg_id" {
+  description = "Aurora 보안 그룹 ID"
+  value       = module.aurora_db.db_sg_id
+}
+
+output "update_kubeconfig_command" {
+  description = "kubeconfig 업데이트를 위한 AWS CLI 명령어"
+  value       = "aws eks update-kubeconfig --region ap-northeast-2 --name ${module.eks_cluster.cluster_name} --profile process"
+}
+
+output "minio_dr_buckets" {
+  description = "생성된 DR S3 버킷 목록"
+  value       = module.minio_s3_dr.minio_dr_buckets
+}
+
+>>>>>>> develop
