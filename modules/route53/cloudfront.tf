@@ -11,6 +11,10 @@ resource "aws_cloudfront_key_group" "signed" {
   provider = aws.use1
   name     = "alwayson-signed-group"
   items    = [aws_cloudfront_public_key.signed.id]
+<<<<<<< HEAD
+=======
+  depends_on = [aws_cloudfront_public_key.signed]
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
 }
 
 ############################################
@@ -21,6 +25,12 @@ resource "aws_cloudfront_distribution" "this" {
   depends_on = [aws_acm_certificate_validation.this]
   enabled    = true
 
+<<<<<<< HEAD
+=======
+  # API 서버 형태이므로 기본 루트 오브젝트는 비워둠
+  default_root_object = "" 
+
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
   aliases = [
     "alwaysonteam.store",
     "www.alwaysonteam.store"
@@ -29,20 +39,33 @@ resource "aws_cloudfront_distribution" "this" {
   ################################################
   # 🔵 Origin 설정
   ################################################
+<<<<<<< HEAD
   
   # 1. API & Default용 ALB (80번 포트 고정)
   origin {
     domain_name = "k8s-app-backendi-20f5a272f2-919536847.ap-northeast-2.elb.amazonaws.com"
     origin_id   = "alb-backend"
+=======
+  origin {
+    domain_name = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com"
+    
+    # [수정 위치 1] 이름표(ID)를 ALB DNS 주소로 설정
+    origin_id   = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
 
     custom_origin_config {
       http_port              = 80
       https_port             = 443
+<<<<<<< HEAD
       origin_protocol_policy = "http-only" # 조원분 요청 사항 반영
+=======
+      origin_protocol_policy = "http-only"
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
       origin_ssl_protocols   = ["TLSv1.2"]
     }
   }
 
+<<<<<<< HEAD
   # 2. HLS 영상용 S3 버킷
   origin {
     domain_name = "alwayson-video-hls.s3.ap-northeast-2.amazonaws.com" 
@@ -114,10 +137,98 @@ resource "aws_cloudfront_distribution" "this" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods = ["GET","HEAD","OPTIONS"]
     cached_methods  = ["GET","HEAD"]
+=======
+  ################################################
+  # ⭐ Default Cache Behavior (일반 접속)
+  ################################################
+  default_cache_behavior {
+    # [수정 위치 2] 위 origin_id와 일치시킴
+    target_origin_id       = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods   = ["GET", "HEAD"]
+
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+
+    forwarded_values {
+      query_string = true
+      headers      = ["Host", "Origin", "Authorization", "Accept"]
+      cookies {
+        forward = "all"
+      }
+    }
+  }
+
+  ################################################
+  # 🔐 보안 경로 1: /api/* (Signed URL 필수)
+  ################################################
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    # [수정 위치 3] 위 origin_id와 일치시킴
+    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+    
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods   = ["GET", "HEAD"]
+    viewer_protocol_policy = "redirect-to-https"
+
     trusted_key_groups = [aws_cloudfront_key_group.signed.id]
 
     forwarded_values {
       query_string = true
+      headers      = ["Host", "Origin", "Authorization", "Accept"]
+      cookies { forward = "all" }
+    }
+
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+  }
+
+  ################################################
+  # 🔐 보안 경로 2: /video-hls/* (Signed URL 필수)
+  ################################################
+  ordered_cache_behavior {
+    path_pattern     = "/video-hls/*"
+    # [수정 위치 4] 위 origin_id와 일치시킴
+    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+    
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    viewer_protocol_policy = "redirect-to-https"
+
+    trusted_key_groups = [aws_cloudfront_key_group.signed.id]
+
+    forwarded_values {
+      query_string = true
+      cookies { forward = "none" }
+    }
+
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  ################################################
+  # 🔐 보안 경로 3: /video-thumb/* (Signed URL 필수)
+  ################################################
+  ordered_cache_behavior {
+    path_pattern     = "/video-thumb/*"
+    # [수정 위치 5] 위 origin_id와 일치시킴
+    target_origin_id = "k8s-default-testingr-0c218d6212-566298767.ap-northeast-2.elb.amazonaws.com" 
+    
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    viewer_protocol_policy = "redirect-to-https"
+
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
+    trusted_key_groups = [aws_cloudfront_key_group.signed.id]
+
+    forwarded_values {
+      query_string = true
+<<<<<<< HEAD
       headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       cookies { forward = "none" }
     }
@@ -156,6 +267,14 @@ resource "aws_cloudfront_distribution" "this" {
     min_ttl     = 0
     default_ttl = 0
     max_ttl     = 0
+=======
+      cookies { forward = "none" }
+    }
+
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
   }
 
   viewer_certificate {
@@ -169,4 +288,12 @@ resource "aws_cloudfront_distribution" "this" {
       restriction_type = "none"
     }
   }
+<<<<<<< HEAD
 }
+=======
+
+  tags = {
+    Name = "AlwaysOn-CloudFront-Final"
+  }
+}
+>>>>>>> 07eca7e (Fix. merged 충돌 해결)
