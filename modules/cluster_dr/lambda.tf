@@ -67,3 +67,12 @@ resource "aws_lambda_function" "dr_scaler" {
     aws_iam_role_policy.lambda_secrets_policy,
   ]
 }
+
+# SNS가 람다를 호출할 수 있는 권한 부여 (리소스 기반 정책)
+resource "aws_lambda_permission" "allow_sns_invoke_dr_scaler" {
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction" # 람다 함수 호출 권한
+  function_name = aws_lambda_function.dr_scaler.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.dr_notification.arn
+}
