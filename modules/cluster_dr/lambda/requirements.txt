@@ -1,0 +1,3 @@
+kubernetes
+pymysql
+urllib3

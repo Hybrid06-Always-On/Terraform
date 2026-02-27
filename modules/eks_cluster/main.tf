@@ -38,11 +38,11 @@ module "eks" {
   eks_managed_node_groups = {
     team_node_group = {
       ami_type      = "AL2023_x86_64_STANDARD"
-      instance_type = ["t3.medium"] # 테스트: t3.medium / 운영: m6i.large
+      instance_type = ["m6i.large"] # 테스트: t3.medium / 운영: m6i.large
 
-      min_size     = 3 # 최소 워커노드 수
-      max_size     = 5 # 최대 워커노드 수
-      desired_size = 3 # 초기 워커노드 수
+      min_size     = 2 # 최소 워커노드 수
+      max_size     = 3 # 최대 워커노드 수
+      desired_size = 2 # 초기 워커노드 수
     }
   }
 
@@ -51,22 +51,6 @@ module "eks" {
     Project     = "team"
     Environment = "prod"
   }
-}
-
-# kubeconfig 자동 업데이트
-resource "null_resource" "update_kubeconfig" {
-  # EKS 클러스터가 생성되거나 업데이트될 때마다 실행
-  triggers = {
-    cluster_endpoint = module.eks.cluster_endpoint
-    cluster_name     = module.eks.cluster_name
-  }
-
-  # 로컬에서 kubeconfig 업데이트
-  provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --region ap-northeast-2 --name ${var.team_cluster_name} --profile process"
-  }
-
-  depends_on = [module.eks]
 }
 
 # 현재 AWS 계정 ID 가져오기
