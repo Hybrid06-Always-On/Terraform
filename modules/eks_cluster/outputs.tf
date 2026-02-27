@@ -9,6 +9,11 @@ output "cluster_endpoint" {
   value       = module.eks.cluster_endpoint
 }
 
+output "cluster_arn" {
+  description = "EKS 클러스터 ARN"
+  value       = module.eks.cluster_arn
+}
+
 # kubeconfig 업데이트 명령어
 output "update_kubeconfig_command" {
   description = "kubeconfig 업데이트를 위한 AWS CLI 명령어"

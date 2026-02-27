@@ -14,3 +14,5 @@ variable "instance_count" {
   description = "생성할 Aurora 인스턴스 개수 (1이면 Writer만, 2이상이면 Reader 추가)"
   default     = 1
 }
+
+
