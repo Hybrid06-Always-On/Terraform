@@ -14,22 +14,6 @@ output "team_cluster_name" {
   value = module.network.team_cluster_name
 }
 
-<<<<<<< HEAD
-# output "aurora_cluster_endpoint" {
-#   description = "Aurora Cluster Writer 엔드포인트"
-#   value       = module.aurora_db.cluster_endpoint
-# }
-
-# output "aurora_cluster_reader_endpoint" {
-#   description = "Aurora Cluster Reader 엔드포인트"
-#   value       = module.aurora_db.cluster_reader_endpoint
-# }
-
-# output "aurora_db_sg_id" {
-#   description = "Aurora 보안 그룹 ID"
-#   value       = module.aurora_db.db_sg_id
-# }
-=======
 output "team_cluster_arn" {
   value = module.eks_cluster.cluster_arn
 }
@@ -67,4 +51,24 @@ output "minio_dr_buckets" {
   value       = module.minio_s3_dr.minio_dr_buckets
 }
 
->>>>>>> develop
+
+output "datasync_agent_instance_id" {
+  value = module.datasync_agent.instance_id
+}
+
+output "datasync_agent_private_ip" {
+  value = module.datasync_agent.private_ip
+}
+
+output "datasync_agent_sg_id" {
+  value = module.datasync_agent.security_group_id
+}
+output "efs_id" {
+  description = "생성된 EFS 파일 시스템의 ID"
+  value       = module.efs.efs_id
+}
+
+output "efs_access_point_id" {
+  description = "생성된 EFS 액세스 포인트의 ID"
+  value       = module.efs.efs_access_point_id
+}

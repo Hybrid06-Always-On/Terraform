@@ -8,7 +8,3 @@ terraform {
     profile      = "process"
   }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> develop

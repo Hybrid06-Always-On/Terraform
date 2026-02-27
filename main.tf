@@ -1,27 +1,9 @@
 # 1. Network 모듈 호출
-<<<<<<< HEAD
-# VPC, Subnet, Security Group 등을 생성합니다.
-=======
->>>>>>> develop
 module "network" {
   source = "./modules/network"
 }
 
 # 2. Aurora DB 모듈 호출
-<<<<<<< HEAD
-# module "aurora_db" {
-#   source = "./modules/auroradb"
-
-#   # 네트워크 모듈과 연계
-#   team_vpc_id    = module.network.team_vpc_id
-#   team_prisn_ids = module.network.team_prisn_ids
-
-#   # 설정값
-#   instance_count = var.instance_count
-#   db_username    = var.db_username
-#   db_password    = var.db_password
-# }
-=======
 module "aurora_db" {
   source = "./modules/auroradb"
 
@@ -72,4 +54,20 @@ module "cluster_dr" {
   team_cluster_endpoint = module.eks_cluster.cluster_endpoint
   team_prisn_ids        = module.network.team_prisn_ids
 }
->>>>>>> develop
+
+# 7. datasync_agent 모듈 호출
+module "datasync_agent" {
+  source = "./modules/datasync_agent"
+
+  team_vpc_id    = module.network.team_vpc_id
+  team_pubsn_ids = module.network.team_pubsn_ids
+  team_prisn_ids = module.network.team_prisn_ids
+}
+
+# 8. efs 모듈 호출
+module "efs" {
+  source = "./modules/efs"
+
+  team_vpc_id    = module.network.team_vpc_id
+  team_prisn_ids = module.network.team_prisn_ids
+}
