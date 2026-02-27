@@ -51,6 +51,18 @@ output "minio_dr_buckets" {
   value       = module.minio_s3_dr.minio_dr_buckets
 }
 
+
+output "datasync_agent_instance_id" {
+  value = module.datasync_agent.instance_id
+}
+
+output "datasync_agent_private_ip" {
+  value = module.datasync_agent.private_ip 
+}
+
+output "datasync_agent_sg_id" {
+  value = module.datasync_agent.security_group_id
+}
 output "efs_id" {
   description = "생성된 EFS 파일 시스템의 ID"
   value       = module.efs.efs_id
