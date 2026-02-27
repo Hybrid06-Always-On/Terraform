@@ -38,12 +38,21 @@ module "monitoring" {
   depends_on = [module.eks_cluster]
 }
 
+<<<<<<< feature-datasync
 module "datasync_agent" {
   source = "./modules/datasync_agent"
 
   team_vpc_id    = module.network.team_vpc_id
   team_pubsn_ids = module.network.team_pubsn_ids
   team_prisn_ids = module.network.team_prisn_ids
+=======
+# efs 모듈 호출
+module "efs" {
+  source = "./modules/efs"
+
+  team_vpc_id        = module.network.team_vpc_id
+  team_prisn_ids    = module.network.team_prisn_ids
+>>>>>>> develop
 }
 # 6. Cluster DR 모듈 호출
 # 온프레미스 장애 시 Route53 HealthCheck → SNS → CloudWatch Alarm → Lambda → EKS scale-up을 수행
