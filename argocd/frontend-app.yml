@@ -9,6 +9,9 @@ spec:
     repoURL: https://github.com/Hybrid06-Always-On/helm_chart.git
     targetRevision: main
     path: charts/frontend
+    helm:
+      valueFiles:
+        - values-aws.yaml
   ignoreDifferences:
     - group: autoscaling
       kind: HorizontalPodAutoscaler

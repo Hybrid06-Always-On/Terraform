@@ -67,7 +67,7 @@ def check_db() -> tuple[bool, str]:
     try:
         creds = get_secret(ONPREM_DB_SECRET_ARN)
         host     = creds["host"]
-        port     = int(creds.get("port", 5432))
+        port     = int(creds.get("port", 3306))
         dbname   = creds["dbname"]
         username = creds["username"]
         password = creds["password"]
