@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Hybrid06-Always-On/helm_chart.git
+    targetRevision: main
+    path: charts/backend
+    helm:
+      valueFiles:
+        - values-aws.yaml
+  ignoreDifferences:
+    - group: autoscaling  
+      kind: HorizontalPodAutoscaler
+      name: backend-hpa
+      jqPathExpressions:
+        - .spec.minReplicas
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
